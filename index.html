@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>镜花水月</title>
+    <style>
+    body {
+        background-color: #a4a8a9; 
+        background-image: radial-gradient(#ffffff 0%, transparent 0%), linear-gradient(#f4f1de 0%, #e9e4d4 100%); /* 增加一点微弱的纸张质感 */
+        display: flex;
+        justify-content: center;
+        align-items: flex-end;
+        height: 100vh;
+        margin: 0;
+        font-family: "STKaiti", "KaiTi", "BiauKai", "STFangsong", "FangSong", serif;
+        transition: background-image 0.8s ease-in-out;
+        background-size: cover; 
+        background-position: center center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        
+    }
+
+    
+    #game-container {
+        width: 90%;
+        max-width: 800px;
+        min-height: 200px;
+        background-color: rgba(45, 42, 38, 0.9); 
+        border: 1px solid #3d3d3d;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2); 
+        padding: 40px 30px;
+        box-sizing: border-box;
+        color: #f4f1de;
+        position: relative;
+        margin-bottom: 50px;
+        cursor: pointer;
+        border-radius: 4px; 
+    }
+
+    #name-box {
+    position: absolute;   /* 绝对定位 */
+    top: -20px;           /* 向上挪出框外 */
+    left: 30px;           /* 向右挪一点 */
+    background-color: #332c22; /* 深木色背景 */
+    color: #fdfaf2;            /* 浅色文字 */
+    padding: 5px 20px;
+    font-size: 18px;
+    border: 1px solid #dcd5c5;
+    display: none;        /* 默认先藏起来 */
+    z-index: 100;         /* 确保它不被别的层挡住 */
+}
+
+    /* 文本内容居中 */
+    #text-content {
+        font-size: 22px;
+        line-height: 1.8;
+        text-align: center;
+        white-space: pre-wrap;
+    }
+
+    /* 选项容器 */
+    #options-container {
+        display: none;
+        margin-top: 25px;
+        text-align: center;
+    }
+
+    /* 选项按钮：更有纸质书卷感 */
+    button {
+        display: inline-block;
+        background-color: rgba(255, 255, 255, 0.05);
+        border: 1px solid #666;
+        color: #d1d1d1;
+        padding: 10px 30px;
+        margin: 10px;
+        cursor: pointer;
+        font-family: inherit;
+        font-size: 18px;
+        transition: 0.3s;
+    }
+    #name-box {
+        position: absolute;   /* 绝对定位 */
+        top: -20px;           /* 向上挪出框外 */
+        left: 30px;           /* 向右挪一点 */
+        background-color: #332c22; /* 深木色背景 */
+        color: #fdfaf2;            /* 浅色文字 */
+        padding: 5px 20px;
+        font-size: 18px;
+        border: 1px solid #dcd5c5;
+        display: none;        /* 默认先藏起来 */
+        z-index: 100;         /* 确保它不被别的层挡住 */
+    }
+
+    button:hover {
+        background-color: #f4f1de;
+        color: #2d2a26; /* 悬停时反色，很有点击感 */
+        border-color: #f4f1de;
+    }
+</style>
+</head>
+<body>
+
+<div id="game-container" onclick="handleNext()">
+    <div id="name-box"></div>
+    <div id="text-content">正在加载剧情...</div>
+    <div id="options-container"></div>
+</div>
+
+<script>
+    let flags = {
+        asked_choice1: false,
+        asked_choice2: false
+    };
+    // 剧情数据
+    const story = {
+        start: {
+            text: "你在头痛中醒来。",
+            next: "step2"
+        },
+        step2:{
+            text: "费劲地睁开眼睛后发现自己不在出租屋的床上，顶灯三个灯泡坏了一个，房间格局老旧，但是整体上还算是整洁。书桌边上坐着一个金发女子，背对着你，在电脑上噼里啪啦地打字。",
+            next: "step3"
+        },
+        step3:{
+            text: "······",
+            name: "你",
+            next: "step4"
+        },
+        step4:{
+            text: "听到这边传来的声音，女子停下手中动作，从转椅上转了过来。你模糊地感觉你应该是认识她的，但是想不起来她的名字。",
+            next: "discovery"
+        },
+        
+        discovery: {
+            text: "呀，你醒了。",
+            name: "？？？",
+            bg: "1.jpg",
+            options: [
+                { text: "你是···", next: "choice01" },
+                { text: "这是在···", next: "choice02" }
+            ]
+        },
+        choice01: {
+            text: "连我都不记得了？你昨天大半夜的，过来找我们，还记得是为了什么吗？",
+            name: "？？？",
+            bg: "2.jpg",
+            next: "step2_1"
+        },
+        choice02: {
+            text: "你这问的。昨天三更半夜，是你自己找上门来的，现在却不记得这是哪里了？",
+            name: "？？？",
+            bg: "2.jpg",
+            next: "step2_1"
+        },
+        step2_1: {
+            text: "你费力回忆起来，但是想起的上一件事情还是工作下班，似乎前一天晚上发生的事情一概忘记了，一想就头痛。",
+            bg: "2.jpg",
+            next: "step2_2" 
+        },
+        step2_2: {
+            text: "你摇了摇头。",
+            bg: "1.jpg",
+            next: "step2_3"
+        },
+        step2_3: {
+            text: "也不奇怪。你过来的路上撞到脑袋了。",
+            name: "？？？",
+            bg: "1.jpg",
+            next: "step2_4"
+        },
+        step2_4: {
+            text: "（伸出手)可以叫我一三。<br><span style='color: #B22222;'><b>【解锁新人物：一三】</b></span>",
+            bg: "2.jpg",
+            name: "？？？",
+            next: "step2_5"
+        },
+        step2_5: {
+            text: "你和她握了手。一三从书桌上拾起一台平板。",
+            bg: "1.jpg",
+            next: "step2_6"
+        },
+        step2_6: {
+            text: "凡是来找我们帮忙的人，多半是穷途末路，这你知道吗？",
+            name: "一三",
+            bg: "1.jpg",
+            next: "step2_side"
+        },
+        step2_side:{
+            text: "······",
+            name: "你",
+            bg: "1.jpg",
+            next: "step2_7"
+        },
+        step2_7: {
+            text: "（看见你迷茫的眼神）算了，你叫什么？",
+            name: "一三",
+            bg: "2.jpg",
+            next: "step2_8"
+        },
+        step2_8: {
+            text: "景澍。",
+            name: "你",
+            bg: "2.jpg",
+            next: "step2_9"
+        },
+        step2_9: {
+            text: "好名字，景小雨，小时候写起来是不是很费劲啊？",
+            name: "一三",
+            bg: "1.jpg",
+            options: [
+                { text: "只有我妈才能叫我小雨。", next: "choice2" },
+                { text: "你不是说我们认识吗？", next: "choice1" }
+                
+            ]
+        },
+        choice1: {
+            text: "哎呀，这不是想再看一遍你的反应吗。",
+            bg: "2.jpg",
+            name: "一三",
+            next: "step3_1"
+        },
+        choice2: {
+            text: "啧啧啧。别对我有敌意啊。",
+            name: "一三",
+            bg: "2.jpg",
+            next: "step3_1"
+        },
+        step3_1: {
+            text: "别害怕，我是老魏的朋友。<br><span style='color: #B22222;'><b>【解锁新人物：老魏】</b></span>",
+            name: "一三",
+            bg: "1.jpg",
+            next: "step3_1_1"
+        },
+        step3_1_1: {
+            text: "老魏是你很多年前打舞萌拼机时认识的，那时是个辍学生，现在似乎已经是一方老大，你不太清楚，他很少和你讲他这一面的故事。",
+            next: "step3_2"
+        },
+        step3_2: {
+            text: "事实上，你也不知道他的真名。你问他的时候，他只说，大家都叫他老魏。",
+            next: "step3_3"
+        },
+        step3_3: {
+            text: "你甚至不知道是哪个wèi，但是你一直很相信他。",
+            next: "step3_4"
+        },
+        step3_4: {
+            text: "他在哪里？",
+            name: "你",
+            next: "step3_5"
+        },
+        step3_5: {
+            text: "一三站起身，把手上的东西扔回书桌上，拉开门向外探头。",
+            next: "step3_6"
+        },
+        step3_6: {
+            text: "叫魏哥过来。",
+            name: "一三",
+            next: "step3_7"
+        },
+        step3_7: {
+            text: "走廊上很快传来好几个人的脚步声。你重新躺下，手不由得伸向脑后，那里的确有一道微微发热的伤口。",
+            next: "step3_8"
+        },
+        step3_8: {
+            text: "你再次尝试回忆起前一天发生的事。",
+            next: "step3_9"
+        },
+        step3_9: {
+            text: "前一天是星期五。你下班比平时要早一些，回到家时天还没黑透，所以你接受了男友的约会邀请。",
+            next: "step3_10_1"
+        },
+        step3_10_1: {
+            text: "难得的空闲时候，你们去了一家高档餐厅，甚至还点了不便宜的酒。饭后在他家呆了一会，然后你回了出租屋。",
+            next: "step3_10"
+        },
+        step3_10: {
+            text: "然后你回了出租屋...？",
+            next: "step3_11"
+        },
+        step3_11: {
+            text: "你闭上眼睛，怎么也想不出最后是怎么到这里来的。",
+            next: "step3_12"
+        },
+        step3_12: {
+            text: "门外传来沉重的脚步声。",
+            next: "step3_13"
+        },
+        step3_13: {
+            text: "真粗鲁。东西留在外面。",
+            name: "一三",
+            next: "step3_14"
+        },
+        step3_14: {
+            text: "乒铃乓啷的金属撞击声。",
+            next: "step3_15"
+        },
+        step3_15: {
+            text: "老子才是老大，许依山。<br><span style='color: #B22222;'><b>【资料已更新】</b></span>",
+            name: "老魏",
+            next: "step3_16"
+        },
+        step3_16: {
+            text: "老魏轻手轻脚地进来，坐在刚才那把转椅上。许依山带上了门，靠在门边开始玩手机。",
+            next: "step3_17"
+        },
+        step3_17: {
+            text: "你重新坐起来，却被他按了回去。",
+            next: "step3_18"
+        },
+        step3_18: {
+            text: "没有要你做的事，好好躺着吧。",
+            name: "老魏",
+            next: "step3_19"
+        },
+        step3_19: {
+            text: "你有什么需要的尽管说。",
+            name: "老魏",
+            options: [
+                { text: "止痛药。", next: "choice2_2", onSelect: () => { flags.asked_choice2 = true; } },
+                { text: "到底发生了什么？", next: "choice2_1", onSelect: () => { flags.asked_choice2 = true; }}
+                
+            ]
+        },
+        choice2_2: {
+            text: "老魏面色闪过一丝犹豫。",
+            next: "step3_20"
+        },
+        step3_20: {
+            text: "抱歉。这个不行。",
+            name: "老魏",
+            next: "step3_21"
+        },
+        step3_21: {
+            text: "",
+            options: [
+                { text: "止痛药。", next: "choice2_2", 
+                condition: () => !flags.asked_choice2 && flags.asked_choice1, 
+                },
+                { text: "到底发生了什么？", next: "choice2_1" }
+                
+            ],
+            name: "你",
+            next: "choice2_1"
+        },
+        choice2_1: {
+            text: "你昨天晚上，可能是喝醉了找到这里的。我们也不太清楚。",
+            name: "老魏",
+            next: "step3_23"
+        },
+        step3_23: {
+            text: "这是哪里？",
+            name: "你",
+            next: "step3_24"
+        },
+        step3_24: {
+            text: "啊，这是我们家楼上。之前没带你上来过而已。",
+            name: "老魏",
+            next: "step3_25"
+        },
+
+        
+
+    };
+    // 简单的预加载函数
+    function preloadGameImages() {
+        const imagesToLoad = ["1.jpg", "2.jpg"]; // 直接列出你的图片名
+    
+        imagesToLoad.forEach(src => {
+            const img = new Image();
+            img.src = src;
+            img.onload = () => console.log(src + " 已偷偷加载完毕");
+        });
+    }
+
+// 执行预加载
+preloadGameImages();
+
+    let currentState = 'start';
+
+    const textElement = document.getElementById('text-content');
+    const optionsElement = document.getElementById('options-container');
+
+    // 渲染画面
+    function render() {
+    const node = story[currentState];
+    const nameBox = document.getElementById('name-box');
+
+    // 1. 名字框逻辑
+    if (node.name) {
+        nameBox.innerText = node.name;
+        nameBox.style.display = "block";
+    } else {
+        nameBox.style.display = "none";
+    }
+
+    // 2. 背景图逻辑
+    if (node.bg) {
+        document.body.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('${node.bg}')`;
+    } else {
+        document.body.style.backgroundImage = "none";
+    }
+
+    // 3. 文本内容
+    textElement.innerHTML = node.text;
+
+    // 4. 选项处理逻辑
+    optionsElement.innerHTML = '';
+    if (node.options) {
+        optionsElement.style.display = 'block';
+        
+        node.options.forEach(opt => {
+            // --- 【新增核心：检查条件】 ---
+            // 如果选项没写 condition，默认返回 true（显示）；如果写了，就运行它看结果
+            const shouldShow = opt.condition ? opt.condition() : true;
+
+            if (shouldShow) {
+                const btn = document.createElement('button');
+                btn.innerText = opt.text;
+                btn.onclick = (e) => {
+                    e.stopPropagation();
+
+                    // --- 【新增核心：执行选择后的动作】 ---
+                    // 如果选项里写了 onSelect，就在跳转前运行它（比如改 flags）
+                    if (opt.onSelect) opt.onSelect();
+
+                    selectOption(opt.next);
+                };
+                optionsElement.appendChild(btn);
+            }
+        });
+    } else {
+        optionsElement.style.display = 'none';
+    }
+}
+
+    // 处理点击黑框翻页
+    function handleNext() {
+        const node = story[currentState];
+        if (!node.options && node.next) {
+            currentState = node.next;
+            render();
+        }
+    }
+
+    // 处理选项选择
+    function selectOption(nextState) {
+        currentState = nextState;
+        render();
+    }
+
+    // 初始化
+    render();
+</script>
+
+</body>
+</html>
