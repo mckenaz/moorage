@@ -514,7 +514,7 @@ preloadGameImages();
                         e.stopPropagation();
 
                         // --- 在这里添加记录选项的代码 ---
-                        gameLog.push(`> ${opt.text}`);
+                        gameLog.push(`> 你： ${opt.text}`);
 
                         // --- 【新增核心：执行选择后的动作】 ---
                         // 如果选项里写了 onSelect，就在跳转前运行它（比如改 flags）
@@ -564,7 +564,7 @@ preloadGameImages();
         
         logContent.innerHTML = gameLog.map(line => {
             // 如果是以 ">" 开头的选项记录，换个颜色（比如灰色或黄色）
-            const isOption = line.startsWith('> 选择了：');
+            const isOption = line.startsWith('> 你：');
             const color = isOption ? '#aaa' : '#fff';
             const fontSize = isOption ? '14px' : '16px';
             
